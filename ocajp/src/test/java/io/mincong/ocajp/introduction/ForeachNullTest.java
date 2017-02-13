@@ -1,4 +1,4 @@
-package io.mincong.ocajp;
+package io.mincong.ocajp.introduction;
 
 import static org.junit.Assert.fail;
 

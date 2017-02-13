@@ -1,7 +1,7 @@
-package io.mincong.ocajp.cake;
+package io.mincong.ocajp.introduction.cake;
 
-import static io.mincong.ocajp.cake.CakeFactory.Chocolate;
-import static io.mincong.ocajp.cake.CakeFactory.Strawberry;
+import static io.mincong.ocajp.introduction.cake.CakeFactory.Chocolate;
+import static io.mincong.ocajp.introduction.cake.CakeFactory.Strawberry;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
