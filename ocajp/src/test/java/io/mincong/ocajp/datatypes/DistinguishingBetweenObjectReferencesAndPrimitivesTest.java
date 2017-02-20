@@ -17,6 +17,19 @@ public class DistinguishingBetweenObjectReferencesAndPrimitivesTest {
   }
 
   /**
+   * Review Questions > Question 16.
+   */
+  @Test
+  public void testNumberBaseConversion() {
+    int amount1 = 0b101;
+    int amount2 = 0xE;
+    double amount3 = 0xE;
+    assertEquals(amount1, 5);
+    assertEquals(amount2, 14);
+    assertEquals(amount3, 14, 0.000_000_1);
+  }
+
+  /**
    * The following expressions do not compile (except the last one):
    * <pre>
    * double notAtStart = _1000.00;          // DOES NOT COMPILE
