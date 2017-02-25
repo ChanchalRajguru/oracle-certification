@@ -1,4 +1,4 @@
-package io.mincong.ocajp.basic.question9;
+package io.mincong.ocajp.chapter1.question9;
 
 /**
  * @author Mincong Huang
@@ -6,7 +6,7 @@ package io.mincong.ocajp.basic.question9;
 public class OptionD {
 
   public static void main(String _Names[]) {
-    // Array operator may appear after the variable name.
+    // Array chapter2 may appear after the variable name.
   }
 
 }

@@ -1,4 +1,4 @@
-package io.mincong.ocajp.operator;
+package io.mincong.ocajp.chapter2;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -37,18 +37,18 @@ public class AdditionalBinaryOperatorsTest {
   public void testCompoundAssignmentOperators() throws Exception {
     int x = 2;
     int z = 3;
-    x *= z; // compound assignment operator
+    x *= z; // compound assignment chapter2
     assertEquals(6, x);
 
     long a = 10;
     int b = 5;
 //  b = b * a;  // does not compile
     b *= a;
-    // The compound operator will first cast `y` to a `long`, apply the multiplication of two `long`
+    // The compound chapter2 will first cast `y` to a `long`, apply the multiplication of two `long`
     // values, and then cast the result to an `int`. Unlike the previous example, in which the
     // compiler threw an exception, in this example we see that the compiler will automatically cast
     // the resulting value to the data type of the value on the left-hand side of the compound
-    // operator.
+    // chapter2.
     assertTrue(Integer.class.isInstance(b));
     assertFalse(Long.class.isInstance(b));
   }

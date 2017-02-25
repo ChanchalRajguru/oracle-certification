@@ -12,4 +12,4 @@
  *
  * @author Mincong Huang
  */
-package io.mincong.ocajp.basic;
+package io.mincong.ocajp.chapter1;

@@ -1,4 +1,4 @@
-package io.mincong.ocajp.datatypes;
+package io.mincong.ocajp.chapter1;
 
 import static org.junit.Assert.assertEquals;
 

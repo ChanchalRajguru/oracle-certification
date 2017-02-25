@@ -36,4 +36,4 @@
  *
  * @author Mincong Huang
  */
-package io.mincong.ocajp.basic.question7;
+package io.mincong.ocajp.chapter1.question7;

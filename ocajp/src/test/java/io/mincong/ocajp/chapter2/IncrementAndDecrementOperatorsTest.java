@@ -1,4 +1,4 @@
-package io.mincong.ocajp.operator;
+package io.mincong.ocajp.chapter2;
 
 import static org.junit.Assert.assertEquals;
 

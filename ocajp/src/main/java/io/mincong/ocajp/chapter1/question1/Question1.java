@@ -1,4 +1,4 @@
-package io.mincong.ocajp.basic.question1;
+package io.mincong.ocajp.chapter1.question1;
 
 /**
  * Which of the following are valid Java identifiers? (Choose all that apply)

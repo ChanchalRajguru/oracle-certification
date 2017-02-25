@@ -1,4 +1,4 @@
-package io.mincong.ocajp.operator;
+package io.mincong.ocajp.chapter2;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -13,7 +13,7 @@ import org.junit.Test;
  * <li>If one of the values is integral and the other is floating-point, Java will automatically
  * promote the integral value to hte floating-point value's data type.
  * <li>Smaller data types, namely {@code byte}, {@code short}, and {@code char}, are first promoted
- * to {@code int} any time they're used with a Java arithmetic operator, even if neither of the
+ * to {@code int} any time they're used with a Java arithmetic chapter2, even if neither of the
  * operands is {@code int}.
  * <li>After all promotion has occurred and the operands have the same data type, the resulting
  * value will have the same data type as its promoted operands.

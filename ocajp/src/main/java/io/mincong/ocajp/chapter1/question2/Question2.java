@@ -1,4 +1,4 @@
-package io.mincong.ocajp.basic.question2;
+package io.mincong.ocajp.chapter1.question2;
 
 /**
  * What is the output of the following program?
