@@ -7,8 +7,11 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.Test;
 
 /**
@@ -85,7 +88,7 @@ public class ArrayListTest {
   }
 
   @Test
-  public void testConvertArrayToList() {
+  public void testConvertListToArray() {
     List<String> list = new ArrayList<>();
     list.add("hello");
     list.add("world");
@@ -99,6 +102,51 @@ public class ArrayListTest {
     assertSame("world", stringArray[1]);
     assertEquals(2, objectArray.length);
     assertEquals(2, stringArray.length);
+  }
+
+  @Test
+  public void testConvertArrayToList_usingArraysAsList() {
+    String[] wordArray = {"one", "two"};
+    List<String> wordList = Arrays.asList(wordArray);
+    assertEquals("one", wordList.get(0));
+    assertEquals("two", wordList.get(1));
+    try {
+      wordList.remove(1);
+      fail();
+    } catch (UnsupportedOperationException e) {
+      assertNull(e.getMessage());
+    }
+    try {
+      wordList.add("three");
+      fail();
+    } catch (UnsupportedOperationException e) {
+      assertNull(e.getMessage());
+    }
+  }
+
+  @Test
+  public void testConvertArrayToList_usingNewArrayList() {
+    String[] wordArray = {"one", "two"};
+    List<String> wordList = new ArrayList<>();
+    for (String word : wordArray) {
+      wordList.add(word);
+    }
+    assertEquals("one", wordList.get(0));
+    assertEquals("two", wordList.get(1));
+    wordList.add("three");
+    wordList.remove("three");
+    assertEquals(2, wordList.size());
+  }
+
+  @Test
+  public void testConvertArrayToList_usingStream() {
+    String[] wordArray = {"one", "two"};
+    List<String> wordList = Stream.of(wordArray).collect(Collectors.toList());
+    assertEquals("one", wordList.get(0));
+    assertEquals("two", wordList.get(1));
+    wordList.add("three");
+    wordList.remove("three");
+    assertEquals(2, wordList.size());
   }
 
   @Test
