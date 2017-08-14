@@ -17,6 +17,8 @@ import org.junit.Test;
  */
 public class CharacterClassTest {
 
+  /* Character classes */
+
   @Test
   public void simple1() throws Exception {
     String value = "Both organization and organisation are correct.";
@@ -56,6 +58,108 @@ public class CharacterClassTest {
     Matcher matcher = pattern.matcher(value);
     assertThat(asString(matcher)).isEqualTo("4: [3,4[; 5: [4,5[;");
   }
+
+  /* Predefined character classes */
+
+  /**
+   * Predefined character class '.' matches any character (may or may
+   * not match line terminators).
+   */
+  @Test
+  public void predefined_anyCharacter() throws Exception {
+    String value = "sun son soon";
+    String regex = "s.n";
+
+    Pattern pattern = Pattern.compile(regex);
+    Matcher matcher = pattern.matcher(value);
+    assertThat(asString(matcher)).isEqualTo("sun: [0,3[; son: [4,7[;");
+  }
+
+  /**
+   * Predefined character class '\d' matches a digit.
+   */
+  @Test
+  public void predefined_digit() throws Exception {
+    String value = "666abc";
+    String regex = "\\d";
+
+    Pattern pattern = Pattern.compile(regex);
+    Matcher matcher = pattern.matcher(value);
+    assertThat(asString(matcher)).isEqualTo("6: [0,1[; 6: [1,2[; 6: [2,3[;");
+  }
+
+  /**
+   * Predefined character class '\D' matches a non-digit, which is
+   * equivalent to "[^\d]".
+   */
+  @Test
+  public void predefined_nonDigit() throws Exception {
+    String value = "666a";
+    String regex = "\\D";
+
+    Pattern pattern = Pattern.compile(regex);
+    Matcher matcher = pattern.matcher(value);
+    assertThat(asString(matcher)).isEqualTo("a: [3,4[;");
+  }
+
+  /**
+   * Predefined character class '\s' matches a whitespace character,
+   * including ' ' (space), '\t' (tab), '\n' (new line), 'x0B' (end
+   * of line), '\f' (form feed), '\r' (carriage).
+   */
+  @Test
+  public void predefined_whitespaceCharacter() throws Exception {
+    String value = " \t\n\f\r";
+    String regex = "\\s";
+
+    Pattern pattern = Pattern.compile(regex);
+    Matcher matcher = pattern.matcher(value);
+    assertThat(asString(matcher)).isEqualTo(": [0,1[; \t: [1,2[; \n: [2,3[; \f: [3,4[; \r: [4,5[;");
+  }
+
+  /**
+   * Predefined character class '\S' matches a non-whitespace
+   * character, which is equivalent to "[^\s]".
+   */
+  @Test
+  public void predefined_nonWhitespaceCharacter() throws Exception {
+    String value = "M \t\n\f\r";
+    String regex = "\\S";
+
+    Pattern pattern = Pattern.compile(regex);
+    Matcher matcher = pattern.matcher(value);
+    assertThat(asString(matcher)).isEqualTo("M: [0,1[;");
+  }
+
+  /**
+   * Predefined character class '\w' matches a word character, which
+   * is equivalent to "[a-zA-Z_0-9]".
+   */
+  @Test
+  public void predefined_wordCharacter() throws Exception {
+    String value = "~cd!";
+    String regex = "\\w";
+
+    Pattern pattern = Pattern.compile(regex);
+    Matcher matcher = pattern.matcher(value);
+    assertThat(asString(matcher)).isEqualTo("c: [1,2[; d: [2,3[;");
+  }
+
+  /**
+   * Predefined character class '\W' matches a non-word character,
+   * which is equivalent to "[^\w]".
+   */
+  @Test
+  public void predefined_nonWordCharacter() throws Exception {
+    String value = " Regex_2017";
+    String regex = "\\W";
+
+    Pattern pattern = Pattern.compile(regex);
+    Matcher matcher = pattern.matcher(value);
+    assertThat(asString(matcher)).isEqualTo(": [0,1[;");
+  }
+
+  /* Utility method */
 
   private static String asString(Matcher matcher) {
     StringBuilder b = new StringBuilder();
