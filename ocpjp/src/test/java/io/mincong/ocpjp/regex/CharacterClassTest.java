@@ -159,6 +159,21 @@ public class CharacterClassTest {
     assertThat(asString(matcher)).isEqualTo(": [0,1[;");
   }
 
+  /**
+   * Use a predefined character class and replace all the matching
+   * occurrences with a literal strings.
+   */
+  @Test
+  public void predefined_replaceAll() throws Exception {
+    String value = "A?B$C";
+    String regex = "\\W";
+
+    Pattern pattern = Pattern.compile(regex);
+    Matcher matcher = pattern.matcher(value);
+    String newValue = matcher.replaceAll(" ");
+    assertThat(newValue).isEqualTo("A B C");
+  }
+
   /* Utility method */
 
   private static String asString(Matcher matcher) {
