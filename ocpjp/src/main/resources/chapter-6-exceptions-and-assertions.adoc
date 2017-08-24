@@ -1,0 +1,45 @@
+= Exception and Assertions
+
+== Exercise 6.1
+
+Which answer correctly shows the output of class `TwistThrowsException`?
+
+. `useReadFile`; `readFile`; `FileNotFoundException` thrown at runtime
+. `useReadFile`; `FileNotFoundException` thrown at runtime
+. Compilation error
+. `FileNotFoundException` thrown at runtime
+. `useReadFile`; `readFile`
+
+.TwistThrowsException.java
+[source,java]
+----
+import java.io.*;
+
+class TwistThrowsException {
+
+    public void readFile(String file) throws FileNotFoundException { // <2>
+        System.out.println("readFile");
+        throw new FileNotFoundException(); // <1>
+    }
+
+    void useReadFile(String name) throws FileNotFoundException { // <4>
+        System.out.println("useReadFile");
+        try {
+            readFile(name);
+        } catch (FileNotFoundException e) { // <3>
+            // code
+        }
+    }
+
+    public static void main(String args[]) {
+        new TwistThrowsException).useReadFile("a"); // <5>
+    }
+}
+----
+<1> The exception `FileNotFoundException` is instantiated.
+<2> It is thrown outside of the method `readFile(String)`.
+<3> It is caught by method `useReadFile(String)`.
+<4> Method `useReadFile(String)` declares also a `FileNotFoundException`, which is a checked exception.
+<5> This method is used inside `main(String[])`, but it is never handled. `main(String[])` need to
+  handle it using a try-catch block, or declare it in the method signature. *So the answer is C:
+  "Compilation error"*.
