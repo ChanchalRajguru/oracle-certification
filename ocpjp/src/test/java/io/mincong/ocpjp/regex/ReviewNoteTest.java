@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -549,5 +550,47 @@ public class ReviewNoteTest {
   }
 
   /* Formatting strings */
-  // TODO
+
+  /**
+   * The for specifier takes the following form:
+   * <pre>
+   * %[argument_index$][flags][width][.precision]conversion
+   * </pre>
+   * <p>
+   * A format specification must start with a '%' sign and end with a
+   * conversion character:
+   * <ul>
+   * <li>'b' for <tt>boolean</tt>
+   * <li>'c' for <tt>char</tt>
+   * <li>'d' for <tt>int</tt>, <tt>byte</tt>, <tt>short</tt>, and
+   * <tt>long</tt>
+   * <li>'f' for <tt>float</tt> and <tt>double</tt>
+   * <li>'s' for <tt>String</tt>
+   * </ul>
+   */
+  @Test
+  public void formatSpecification() throws Exception {
+    assertThat(String.format(Locale.ENGLISH,
+        "%b %c %d %d %d %d %2.1f %2.1f %s",
+        true,
+        '!',
+        (byte) 1,
+        (short) 2,
+        3,
+        4L,
+        5.0F,
+        6.0D,
+        "100")
+    ).isEqualTo("true ! 1 2 3 4 5.0 6.0 100");
+  }
+
+  @Test
+  public void flags() throws Exception {
+    assertThat(String.format(Locale.ENGLISH, "%-6d", 1000)).isEqualTo("1000  ");
+    assertThat(String.format(Locale.ENGLISH, "%+6d", 1000)).isEqualTo(" +1000");
+    assertThat(String.format(Locale.ENGLISH, "%06d", 1000)).isEqualTo("001000");
+    assertThat(String.format(Locale.ENGLISH, "%,6d", 1000)).isEqualTo(" 1,000");
+    assertThat(String.format(Locale.ENGLISH, "%(6d", -100)).isEqualTo(" (100)");
+  }
+
 }
