@@ -1,5 +1,22 @@
 = Exception and Assertions
 
+There're different kinds of exceptions:
+
+* _Exception class_—Refers to `Throwable` class and all its subclasses.
+* _Error classes_—Refers to `Error` class and all its subclasses
+* _Runtime exception classes_—Refers to runtime exception classes and error classes
+* _Unchecked exception classes_—Refers to runtime exception classes and error classes
+* _Checked exception classes_—Refers to all exception classes other than the unchecked
+exception classes. Class `Throwable` and any of its subclasses that aren't a subclass
+of either `Error` or `RuntimeException` are checked exceptions.
+
+Here's the exception hierarchy:
+
+* `java.lang.Throwable`
+** `java.lang.Error`
+** `java.lang.Exception`
+*** `java.lang.RuntimeException`
+
 == Exercise 6.1
 
 Which answer correctly shows the output of class `TwistThrowsException`?
@@ -43,3 +60,45 @@ class TwistThrowsException {
 <5> This method is used inside `main(String[])`, but it is never handled. `main(String[])` need to
   handle it using a try-catch block, or declare it in the method signature. *So the answer is C:
   "Compilation error"*.
+
+== Exercise 6.3
+
+Which answer correctly show the output of class `TestMultiCatch`?
+
+.TestMultiCatch.java
+[source,java]
+----
+import java.io.*;
+
+class Exception1 extends IOException {}
+class Exception2 extends Exception {}
+
+class TestMultiCatch {
+    public static void main(String args[]) {
+        try {
+            int a = 10;
+            if (a <= 10) {
+                throw new Exception1();
+            } else {
+                throw new Exception2();
+            }
+        } catch (Exception1 | Exception2 ex) {
+            System.out.println(ex);
+        }
+    }
+}
+----
+
+. Value similar to `Exception1@96a34`
+. Value similar to `Exception2@45a86e`
+. `Exception1`
+. `Exception2`
+
+The answer is C. An attempt to retrieve the value of a reference
+variable itself calls its method `toString()`. The common base class
+of classes `Exception1` and `Exception2` is `Exception`. Class
+`Exception` inherits class `Throwable`, which overrides method
+`toString()`. The default implementation of method `toString()` in
+class `Throwable` returns the fully qualified name of the `Throwable`
+instance (all `Exception` and `Error` classes) together with its
+exception message.
