@@ -6,6 +6,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 /**
  * File helper, copied from book <i>OCP Java SE 7, Programmer II,
@@ -108,4 +111,25 @@ public final class FileHelper {
       }
     }
   }
+
+  @SuppressWarnings("unchecked")
+  static <T> T read(File inputFile, Class<T> type)
+      throws IOException, ClassNotFoundException {
+    try (
+        FileInputStream fis = new FileInputStream(inputFile);
+        ObjectInputStream ois = new ObjectInputStream(fis)
+    ) {
+      return (T) ois.readObject();
+    }
+  }
+
+  static void write(File outputFile, Serializable s) throws IOException {
+    try (
+        FileOutputStream fos = new FileOutputStream(outputFile);
+        ObjectOutputStream oos = new ObjectOutputStream(fos)
+    ) {
+      oos.writeObject(s);
+    }
+  }
+
 }

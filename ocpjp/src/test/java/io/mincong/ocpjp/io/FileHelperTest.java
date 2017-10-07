@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -64,6 +65,17 @@ public class FileHelperTest {
   public void bufferedCopyByBytes() throws Exception {
     FileHelper.bufferedCopyByBytes(source, target);
     assertThat(Files.readAllLines(target.toPath(), UTF_8)).hasSize(size);
+  }
+
+  @Test
+  public void readAndWriteObject() throws Exception {
+    FileHelper.write(source, "Hello");
+    String v = FileHelper.read(source, String.class);
+    assertThat(v).isEqualTo("Hello");
+
+    FileHelper.write(source, LocalDate.of(2017, 10, 7));
+    LocalDate d = FileHelper.read(source, LocalDate.class);
+    assertThat(d).isEqualTo(LocalDate.of(2017, 10, 7));
   }
 
 }
