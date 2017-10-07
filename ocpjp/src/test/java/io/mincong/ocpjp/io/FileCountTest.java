@@ -59,7 +59,7 @@ public class FileCountTest {
     // Depth 2
     temporaryDir.newFile("sub/d.txt");
     temporaryDir.newFile("sub/e.txt");
-    temporaryDir.newFolder("sub/sub");
+    temporaryDir.newFolder("sub", "sub");
 
     // Only directories in depth 1 are counted.
     int nbDirectories = FileCounter.countDirectories(temporaryDir.getRoot());
