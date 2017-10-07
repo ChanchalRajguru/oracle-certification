@@ -20,7 +20,7 @@ import org.junit.rules.Timeout;
 public class FileHelperTest {
 
   @Rule
-  public Timeout globalTimeout = Timeout.seconds(2);
+  public Timeout globalTimeout = Timeout.seconds(5);
 
   @Rule
   public TemporaryFolder temporaryDir = new TemporaryFolder();
@@ -29,7 +29,7 @@ public class FileHelperTest {
 
   private File target;
 
-  private final int size = 10_000;
+  private final int size = 100_000;
 
   private final List<String> lines = IntStream.range(0, size)
       .mapToObj(i -> "Line " + i)
@@ -43,14 +43,26 @@ public class FileHelperTest {
   }
 
   @Test
-  public void copyBySingleByte() throws Exception {
-    FileHelper.copyBySingleByte(source, target);
+  public void copyByByte() throws Exception {
+    FileHelper.copyByByte(source, target);
     assertThat(Files.readAllLines(target.toPath(), UTF_8)).hasSize(size);
   }
 
   @Test
-  public void copyByMultiBytes() throws Exception {
-    FileHelper.copyByMultiBytes(source, target);
+  public void copyByBytes() throws Exception {
+    FileHelper.copyByBytes(source, target);
+    assertThat(Files.readAllLines(target.toPath(), UTF_8)).hasSize(size);
+  }
+
+  @Test
+  public void bufferedCopyByByte() throws Exception {
+    FileHelper.bufferedCopyByByte(source, target);
+    assertThat(Files.readAllLines(target.toPath(), UTF_8)).hasSize(size);
+  }
+
+  @Test
+  public void bufferedCopyByBytes() throws Exception {
+    FileHelper.bufferedCopyByBytes(source, target);
     assertThat(Files.readAllLines(target.toPath(), UTF_8)).hasSize(size);
   }
 

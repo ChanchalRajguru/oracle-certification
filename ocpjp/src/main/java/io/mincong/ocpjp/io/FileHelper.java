@@ -1,5 +1,7 @@
 package io.mincong.ocpjp.io;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -23,7 +25,7 @@ public final class FileHelper {
    * Copies file content of the input file to the output file by
    * single byte.
    */
-  public static void copyBySingleByte(File inputFile, File outputFile) throws IOException {
+  static void copyByByte(File inputFile, File outputFile) throws IOException {
     try (
         FileInputStream in = new FileInputStream(inputFile);
         FileOutputStream out = new FileOutputStream(outputFile)
@@ -48,7 +50,7 @@ public final class FileHelper {
    * from and to a file are a costly affair. To optimize these
    * operations, we can use a byte array {@code byte[]}.
    */
-  public static void copyByMultiBytes(File inputFile, File outputFile) throws IOException {
+  static void copyByBytes(File inputFile, File outputFile) throws IOException {
     try (
         FileInputStream in = new FileInputStream(inputFile);
         FileOutputStream out = new FileOutputStream(outputFile)
@@ -66,4 +68,44 @@ public final class FileHelper {
     }
   }
 
+  /**
+   * Buffering stores data in memory before sending a read or write
+   * request to the underlying I/O devices. buffering drastically
+   * reduces the time required for performing reading and writing I/O
+   * operations.
+   * <p>
+   * The exam might test you on how to instantiate buffered streams
+   * correctly. To instantiate {@link BufferedInputStream}, you must
+   * pass it an object of {@link java.io.InputStream}. To instantiate
+   * {@link BufferedOutputStream}, you must pass it an object of
+   * {@link java.io.OutputStream}.
+   */
+  static void bufferedCopyByByte(File inputFile, File outputFile) throws IOException {
+    try (
+        FileInputStream in = new FileInputStream(inputFile);
+        FileOutputStream out = new FileOutputStream(outputFile);
+        BufferedInputStream bis = new BufferedInputStream(in);
+        BufferedOutputStream bos = new BufferedOutputStream(out)
+    ) {
+      int b;
+      while ((b = bis.read()) != -1) {
+        bos.write(b);
+      }
+    }
+  }
+
+  static void bufferedCopyByBytes(File inputFile, File outputFile) throws IOException {
+    try (
+        FileInputStream fis = new FileInputStream(inputFile);
+        FileOutputStream fos = new FileOutputStream(outputFile);
+        BufferedInputStream bis = new BufferedInputStream(fis);
+        BufferedOutputStream bos = new BufferedOutputStream(fos)
+    ) {
+      int len;
+      byte[] byteArr = new byte[1024];
+      while ((len = bis.read(byteArr)) != -1) {
+        bos.write(byteArr, 0, len);
+      }
+    }
+  }
 }
