@@ -1,15 +1,18 @@
 package io.mincong.ocpjp.io;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.rules.Timeout;
 
 /**
  * @author Mincong Huang
@@ -17,30 +20,38 @@ import org.junit.rules.TemporaryFolder;
 public class FileHelperTest {
 
   @Rule
+  public Timeout globalTimeout = Timeout.seconds(2);
+
+  @Rule
   public TemporaryFolder temporaryDir = new TemporaryFolder();
 
-  @Test(timeout = 1000L)
-  public void copyBySingleByte() throws Exception {
-    File source = temporaryDir.newFile("source.txt");
-    File target = temporaryDir.newFile("target.txt");
-    Files.write(source.toPath(), Arrays.asList("Line 1", "Line 2"), StandardCharsets.UTF_8);
+  private File source;
 
-    FileHelper.copyBySingleByte(source, target);
+  private File target;
 
-    List<String> outputLines = Files.readAllLines(target.toPath(), StandardCharsets.UTF_8);
-    assertThat(outputLines).containsExactly("Line 1", "Line 2");
+  private final int size = 10_000;
+
+  private final List<String> lines = IntStream.range(0, size)
+      .mapToObj(i -> "Line " + i)
+      .collect(Collectors.toList());
+
+  @Before
+  public void setUp() throws Exception {
+    source = temporaryDir.newFile("source.txt");
+    target = temporaryDir.newFile("target.txt");
+    Files.write(source.toPath(), lines, UTF_8);
   }
 
-  @Test(timeout = 1000L)
+  @Test
+  public void copyBySingleByte() throws Exception {
+    FileHelper.copyBySingleByte(source, target);
+    assertThat(Files.readAllLines(target.toPath(), UTF_8)).hasSize(size);
+  }
+
+  @Test
   public void copyByMultiBytes() throws Exception {
-    File source = temporaryDir.newFile("source.txt");
-    File target = temporaryDir.newFile("target.txt");
-    Files.write(source.toPath(), Arrays.asList("Line 1", "Line 2"), StandardCharsets.UTF_8);
-
     FileHelper.copyByMultiBytes(source, target);
-
-    List<String> outputLines = Files.readAllLines(target.toPath(), StandardCharsets.UTF_8);
-    assertThat(outputLines).containsExactly("Line 1", "Line 2");
+    assertThat(Files.readAllLines(target.toPath(), UTF_8)).hasSize(size);
   }
 
 }
