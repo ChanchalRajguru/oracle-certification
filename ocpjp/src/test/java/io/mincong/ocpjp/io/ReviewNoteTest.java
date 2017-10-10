@@ -5,17 +5,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
+import org.assertj.core.data.Percentage;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -23,6 +29,7 @@ import org.junit.rules.TemporaryFolder;
 
 /**
  * This section lists the main points covered in this chapter.
+ *
  * <p>
  * Working with class {@link File}:
  * <ul>
@@ -79,8 +86,8 @@ import org.junit.rules.TemporaryFolder;
  * called on any objects of classes that extends class {@link
  * OutputStream}
  * <li>All the classes that include {@link OutputStream} in their
- * name—{@link FileOutputStream}, {@link java.io.ObjectOutputStream}, {@link
- * BufferedOutputStream} and {@link java.io.DataOutputStream}—extend abstract
+ * name—{@link FileOutputStream}, {@link ObjectOutputStream}, {@link
+ * BufferedOutputStream} and {@link DataOutputStream}—extend abstract
  * class {@link OutputStream}, directly or indirectly.
  * <li>To read and write raw bytes from and to a file, use
  * {@link FileInputStream} and {@link FileOutputStream}.
@@ -116,6 +123,38 @@ import org.junit.rules.TemporaryFolder;
  * an object of {@link InputStream}. To instantiate {@link
  * BufferedOutputStream}, you must pass it an object of {@link
  * OutputStream}.
+ * <li>You can use {@link FileInputStream} and
+ * {@link FileOutputStream} to read and write only byte data from and
+ * to an underlying file. These classes ({@link FileInputStream} and
+ * {@link FileOutputStream} don't define methods to work with any
+ * other specific primitive data types or objects.
+ * <li>Data input and output streams let you read and write primitive
+ * values and strings from and to an underlying I/O stream in a
+ * machine-independent way. Data written with {@link
+ * DataOutputStream} can be read by {@link DataInputStream}.
+ * <li>If a mismatch occurs in the type of data written by {@link
+ * DataOutputStream} and the type of data read by {@link
+ * DataInputStream}, you might not get a runtime exception. Because
+ * data streams read and write bytes, the read operation constructs
+ * the requested data from the available bytes, though incorrectly.
+ * <li>An {@link ObjectOutputStream} can write primitive values and
+ * objects to an {@link OutputStream}, which can by read by an {@link
+ * ObjectInputStream}.
+ * <li>To write objects to a file, their classes should implement
+ * {@link Serializable}, or the code will throw a {@link
+ * java.io.NotSerializableException}.
+ * <li>If a class implements the {@link Serializable} interface, but
+ * its base class doesn't, the class's instance can be serialized.
+ * <li>A class whose object fields don't implement the {@link
+ * Serializable} interface can't be serialized even though the class
+ * itself implements the {@link Serializable} interface. An attempt
+ * to serialize such object fields will throw a runtime exception.
+ * <li>Retrieve the data (primitive and objects) in the order it was
+ * written using object streams, or it might throw a runtime
+ * exception.
+ * <li>When you write objects to a file using {@link
+ * ObjectOutputStream}, its <tt>transient</tt> or <tt>static</tt>
+ * variables aren't written to the file.
  * </ul>
  *
  * @author Mala Gupta
@@ -126,16 +165,17 @@ public class ReviewNoteTest {
   @Rule
   public TemporaryFolder tempFolder = new TemporaryFolder();
 
-  private File source;
+  private File source, target;
+
+  private File temp;
 
   private File dirA;
-
-  private File target;
 
   @Before
   public void setUp() throws Exception {
     source = tempFolder.newFile("source");
     target = tempFolder.newFile("target");
+    temp = tempFolder.newFile("temp");
     dirA = tempFolder.newFolder("dirA");
 
     Files.write(source.toPath(), Arrays.asList("L1", "L2"), UTF_8);
@@ -175,7 +215,7 @@ public class ReviewNoteTest {
     String[] files;
 
     files = tempFolder.getRoot().list();
-    assertThat(files).containsExactlyInAnyOrder("source", "target", "dirA");
+    assertThat(files).containsExactlyInAnyOrder("source", "target", "temp", "dirA");
 
     files = tempFolder.getRoot().list((dir, name) -> name.startsWith("s"));
     assertThat(files).containsExactly("source");
@@ -186,7 +226,7 @@ public class ReviewNoteTest {
     File[] files;
 
     files = tempFolder.getRoot().listFiles();
-    assertThat(files).containsExactlyInAnyOrder(source, target, dirA);
+    assertThat(files).containsExactlyInAnyOrder(source, target, temp, dirA);
 
     files = tempFolder.getRoot().listFiles((dir, name) -> name.startsWith("s"));
     assertThat(files).containsExactly(source);
@@ -284,6 +324,95 @@ public class ReviewNoteTest {
       }
     }
     assertThat(Files.readAllLines(target.toPath())).containsExactly("L1", "L2");
+  }
+
+  @Test
+  public void dataStreams_primitiveValues() throws Exception {
+    try (
+        FileOutputStream fos = new FileOutputStream(temp);
+        DataOutputStream dos = new DataOutputStream(fos)
+    ) {
+      dos.writeChars("Hi");
+      dos.writeChar('.');
+      dos.writeBoolean(true);
+      dos.writeDouble(4.2F);
+    }
+    try (
+        FileInputStream fis = new FileInputStream(temp);
+        DataInputStream dis = new DataInputStream(fis)
+    ) {
+      assertThat(dis.readChar()).isEqualTo('H');
+      assertThat(dis.readChar()).isEqualTo('i');
+      assertThat(dis.readChar()).isEqualTo('.');
+      assertThat(dis.readBoolean()).isTrue();
+      assertThat(dis.readDouble()).isCloseTo(4.2F, Percentage.withPercentage(1));
+    }
+  }
+
+  @Test
+  public void objectStreams_primitiveValues() throws Exception {
+    try (
+        FileOutputStream fos = new FileOutputStream(temp);
+        ObjectOutputStream oos = new ObjectOutputStream(fos)
+    ) {
+      oos.writeChar('.');
+      oos.writeBoolean(true);
+      oos.writeDouble(4.2F);
+    }
+    try (
+        FileInputStream fis = new FileInputStream(temp);
+        ObjectInputStream ois = new ObjectInputStream(fis)
+    ) {
+      assertThat(ois.readChar()).isEqualTo('.');
+      assertThat(ois.readBoolean()).isTrue();
+      assertThat(ois.readDouble()).isCloseTo(4.2F, Percentage.withPercentage(1));
+    }
+  }
+
+  @Test
+  public void objectStreams_objectValues() throws Exception {
+    try (
+        FileOutputStream fos = new FileOutputStream(temp);
+        ObjectOutputStream oos = new ObjectOutputStream(fos)
+    ) {
+      oos.writeObject(new Person("Foo"));
+      oos.writeObject(new Person("Bar"));
+    }
+    try (
+        FileInputStream fis = new FileInputStream(temp);
+        ObjectInputStream ois = new ObjectInputStream(fis)
+    ) {
+      assertThat(ois.readObject()).isEqualTo(new Person("Foo"));
+      assertThat(ois.readObject()).isEqualTo(new Person("Bar"));
+    }
+  }
+
+  private static class Person implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    private String name;
+
+    Person(String name) {
+      this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (!(o instanceof Person)) {
+        return false;
+      }
+      Person person = (Person) o;
+      return name != null ? name.equals(person.name) : person.name == null;
+    }
+
+    @Override
+    public int hashCode() {
+      return name != null ? name.hashCode() : 0;
+    }
   }
 
 }
