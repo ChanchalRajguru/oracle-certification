@@ -79,7 +79,7 @@ public class FileReaderWriterTest {
   }
 
   @Test
-  public void readWriteByBytes() throws Exception {
+  public void readWriteByChars() throws Exception {
     try (
         Reader in = new FileReader(source);
         Writer out = new FileWriter(target)
@@ -112,7 +112,7 @@ public class FileReaderWriterTest {
   }
 
   @Test
-  public void bufferedReadWriteByBytes() throws Exception {
+  public void bufferedReadWriteByChars() throws Exception {
     try (
         FileReader fr = new FileReader(source);
         BufferedReader br = new BufferedReader(fr);

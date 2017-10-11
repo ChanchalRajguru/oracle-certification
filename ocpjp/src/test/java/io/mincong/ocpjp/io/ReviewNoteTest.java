@@ -5,22 +5,30 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.io.Serializable;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import org.assertj.core.data.Percentage;
 import org.junit.Before;
 import org.junit.Rule;
@@ -155,6 +163,51 @@ import org.junit.rules.TemporaryFolder;
  * <li>When you write objects to a file using {@link
  * ObjectOutputStream}, its <tt>transient</tt> or <tt>static</tt>
  * variables aren't written to the file.
+ * </ul>
+ *
+ * <p>
+ * Using character I/O with readers and writers
+ * <ul>
+ * <li>{@link Reader} and {@link Writer} are abstract base classes
+ * for reading and writing Unicode-compliant character data.
+ * <li>Classes {@link Reader} and {@link Writer} handle 16-bit
+ * Unicode well, which isn't supported by the byte-oriented {@link
+ * InputStream} and {@link OutputStream} classes.
+ * <li>Abstract class {@link Reader} defines overloaded <tt>read</tt>
+ * methods to read character data from an underlying data stream.
+ * <li>Class {@link Reader} implements {@link java.io.Closeable} (and
+ * its parent interface {@link AutoCloseable}.) So {@link Reader}
+ * objects can be declared as resources with a try-with-resources
+ * statement.
+ * <li>Compare the overloaded <tt>read()</tt> methods of class {@link
+ * InputStream} with the <tt>read()</tt> methods of class {@link
+ * Reader}. The <tt>read()</tt> methods of {@link InputStream} accept
+ * an array of <tt>byte</tt> as their method parameter, and the
+ * <tt>read()</tt> methods of {@link Reader} accept an array of
+ * <tt>char</tt> as their method parameter.
+ * <li>Abstract class {@link Writer} defines overloaded
+ * <tt>write()</tt> methods to write character data to an underlying
+ * data source.
+ * <li>With the overloaded <tt>write()</tt> methods of class {@link
+ * Writer}, you can write a single character or multiple characters
+ * stored in char arrays or string to a data source.
+ * <li>{@link FileReader} and {@link FileWriter} are convenience
+ * classes for reading and writing character data from files.
+ * <li>You can instantiate a {@link FileReader} by passing it the
+ * name of a file as a string value or as a {@link File} instance.
+ * <li>You can instantiate a {@link FileWriter} by passing it the
+ * name of a file as a string value or as a {@link File} instance.
+ * You also have the options of specifying whether you want to
+ * override the existing content of a file or append new content to
+ * it by passing a <tt>boolean</tt> value to the constructor.
+ * <li>To buffer data with character streams, you need classes {@link
+ * BufferedReader} and {@link BufferedWriter}.
+ * <li>You can instantiate a {@link BufferedReader} by passing it a
+ * {@link Reader} instance.
+ * <li>You can instantiate a {@link BufferedWriter} by passing it a
+ * {@link Writer} instance.
+ * <li>You can also specify a buffer size or use the default size for
+ * both {@link BufferedReader} and {@link BufferedWriter}.
  * </ul>
  *
  * @author Mala Gupta
@@ -386,6 +439,50 @@ public class ReviewNoteTest {
       assertThat(ois.readObject()).isEqualTo(new Person("Bar"));
     }
   }
+
+  /* Using character I/O with readers and writers */
+
+  @Test
+  public void readChars() throws Exception {
+    try (Reader in = new FileReader(source)) {
+      testReader(in);
+    }
+  }
+
+  @Test
+  public void bufferedReadChars() throws Exception {
+    try (Reader r = new FileReader(source); BufferedReader br = new BufferedReader(r)) {
+      testReader(br);
+    }
+  }
+
+  private void testReader(Reader reader) throws IOException {
+    char[] arr = new char[1024];
+    int len = reader.read(arr);
+    char[] chars = Arrays.copyOfRange(arr, 0, len);
+    String expected = String.format(Locale.ROOT, "L1%nL2%n");
+    assertThat(new String(chars)).isEqualTo(expected);
+  }
+
+  @Test
+  public void writeChars() throws Exception {
+    try (Writer out = new FileWriter(target)) {
+      out.write(new char[]{'H', 'e', 'l', 'l', 'o'});
+    }
+    List<String> results = Files.readAllLines(target.toPath());
+    assertThat(results).containsExactly("Hello");
+  }
+
+  @Test
+  public void bufferedWriteChars() throws Exception {
+    try (Writer w = new FileWriter(target); BufferedWriter bw = new BufferedWriter(w)) {
+      bw.write(new char[]{'H', 'e', 'l', 'l', 'o'});
+    }
+    List<String> results = Files.readAllLines(target.toPath());
+    assertThat(results).containsExactly("Hello");
+  }
+
+  /* Utility classes */
 
   private static class Person implements Serializable {
 
