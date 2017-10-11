@@ -2,6 +2,7 @@ package io.mincong.ocpjp.io;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assume.assumeTrue;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -208,6 +209,34 @@ import org.junit.rules.TemporaryFolder;
  * {@link Writer} instance.
  * <li>You can also specify a buffer size or use the default size for
  * both {@link BufferedReader} and {@link BufferedWriter}.
+ * </ul>
+ *
+ * <p>Working with the console
+ * <ul>
+ * <li>Class {@link java.io.Console} defines methods to access the
+ * character-based console device associated with the current JVM.
+ * <li>You may or may not be able to access the console associated
+ * with a JVM, depending on the underlying platform and how the JVM
+ * was started.
+ * <li>If you invoke a JVM from the command line without redirecting
+ * the standard input and output streams, you'll be able to access
+ * its console, which will typically be connected to the keyboard and
+ * display from which the virtual machine was launched.
+ * <li>You may not be able to access the console associated with a
+ * JVM if it started automatically as a result of the execution of
+ * some other program.
+ * <li>You will not get access to the console when using IDEs like
+ * Eclipse.
+ * <li>You can access an object of class {@link java.io.Console} by
+ * calling {@link System#console()}.
+ * <li>If no console device is available, {@link System#console()}
+ * returns <tt>null</tt>. A <tt>null</tt> value signals that either
+ * the program was launched in a non-interactive environment or
+ * perhaps the underlying operating system doesn't support the
+ * console operations.
+ * <li>You can't create an object of {@link java.io.Console}
+ * yourself. Class {@link java.io.Console} doesn't define a public
+ * constructor.
  * </ul>
  *
  * @author Mala Gupta
@@ -480,6 +509,12 @@ public class ReviewNoteTest {
     }
     List<String> results = Files.readAllLines(target.toPath());
     assertThat(results).containsExactly("Hello");
+  }
+
+  @Test
+  public void console() throws Exception {
+    assumeTrue(System.console() != null);
+    // Do more things here...
   }
 
   /* Utility classes */
