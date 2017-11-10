@@ -168,3 +168,61 @@
 . Unlocking of an object monitor happens-before any other thread acquires a lock on it.
 . A write to a volatile field happens-before every subsequent read of that field.
 . All actions in a thread happens-before any other thread returns from a join on that thread.
+
+== Sample Example Questions (Correction)
+
+=== Q 10-6
+
+Selvan is testing a multi-threaded application in which thread A downloads data in a hash map.
+Thread B uses the data from the same hash map and displays it to a user for modification. Thread C
+is supposed to save the modified data and replace the existing data in the hash map. When a user
+tries to save the data, the application stops responding. What could be the probable reasons?
+
+. Thread A and thread C deadlock.
+. Thread B and thread C deadlock.
+. Thread C is discovered to be a high-priority thread that performs complex calculations and doesn't
+  allow other threads to execute.
+. Thread C throws an exception.
+
+The answer is ABC. The application stops responding after a user tries to save data. So the issues
+is the series of actions that execute when thread C is initiated. All the three issues, A, B and C,
+are sharing the same data set. Thread C might try write data that is being modified by thread A or
+thread B, so thread C might deadlock with thread A or B.
+
+Option C is correct. Saving the data is supposed to start thread C. An application might appear to
+stop responding if it doesn't respond to user events. A scheduler chooses from a pool of threads to
+execute the threads that are ready for execution. Though OS-specific, threads of high priority are
+usually preferred over threads with lower priority.
+
+Option D is incorrect. An unhandled exception should make the application exit.
+
+=== Q 10-7
+
+Instances of which of the following classes will always be safe to use in a multi-threaded
+environments?
+
+. `class ESafe { final int value; /* constructor to init value */ }`
+. `class ESafe { final Object value; /* constructor to init value */ }`
+. Option C:
+[source,java]
+----
+final class ESafe {
+    ESafe(Object obj) {
+        value = obj;
+    }
+    private final Object value;
+    synchronized Object read() { return value; }
+    synchronized void modify(Object obj) {}
+}
+----
+. `class ESafe { final String value; /* constructor to init value */ }`
+
+The answer is ACD. Options A is correct. Once assigned a value, a primitive variable cannot be
+changed. So it is safe from reading and writing inconsistent or dirty values. Option B is incorrect.
+Even though defining the instance variable value of class `ESafe` as a `final` member prevents
+reassigning a value to it, it does not prevent modifications to its state. The reference variable
+`value` is not private, so it is accessible outside class `ESafe`. Option C is correct. Marked with
+the keyword `private`, `value` is not accessible outside class `ESafe`. Also, access to the state of
+`ESafe` is synchronized and is safe from concurrent reading or writing by multiple threads. Option D
+is correct. Once initialized, the state of class `ESafe` (value of variable value) cannot be
+modified because class `String` in immutable.
