@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -20,6 +21,8 @@ public class FormatDateTest {
   private final long timestampInMs = 1510492455_000L;
 
   private final Date date = new Date(timestampInMs);
+
+  /* Format date using DateFormat instance */
 
   @Test
   @Ignore("JVM specific")
@@ -151,6 +154,15 @@ public class FormatDateTest {
         throw new IllegalArgumentException(e);
       }
     };
+  }
+
+  /* Format date using SimpleDateFormat */
+
+  @Test
+  public void sdf() throws Exception {
+    assertEquals("2017-11-12", new SimpleDateFormat("yyyy-M-dd", Locale.US).format(date));
+    assertEquals("2017-Nov-12", new SimpleDateFormat("yyyy-MMM-dd", Locale.US).format(date));
+    assertEquals("2017-November-12", new SimpleDateFormat("yyyy-MMMM-dd", Locale.US).format(date));
   }
 
 }
