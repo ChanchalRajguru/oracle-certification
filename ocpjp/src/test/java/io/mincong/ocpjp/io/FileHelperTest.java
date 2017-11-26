@@ -30,7 +30,7 @@ public class FileHelperTest {
 
   private File target;
 
-  private final int size = 100_000;
+  private final int size = 10_000;
 
   private final List<String> lines = IntStream.range(0, size)
       .mapToObj(i -> "Line " + i)
