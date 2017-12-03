@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>oracle-certif-associate</artifactId>
-  <name>Oracle Certified Associate Java SE 8 Programmer</name>
+  <name>Oracle Certified Associate Java SE 8</name>
 
   <dependencies>
     <dependency>
