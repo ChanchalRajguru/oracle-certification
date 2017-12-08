@@ -48,10 +48,9 @@ public class ExecutorServiceTest {
 
   @Test
   public void submit_runnable() throws Exception {
-    Future<?> stepA = threadPool.submit(new FakeRunnable(sum));
-    Future<?> stepB = threadPool.submit(new FakeRunnable(sum));
-    stepA.get(1, TimeUnit.SECONDS);
-    stepB.get(1, TimeUnit.SECONDS);
+    threadPool.submit(new FakeRunnable(sum));
+    threadPool.submit(new FakeRunnable(sum));
+    threadPool.awaitTermination(1, TimeUnit.SECONDS);
 
     assertEquals(20, sum.get());
   }
@@ -88,11 +87,11 @@ public class ExecutorServiceTest {
 
   @Test
   public void submit_callableLambda() throws Exception {
-    Future<Integer> stepA = threadPool.submit(() -> sum.addAndGet(10));
-    Future<Integer> stepB = threadPool.submit(() -> sum.addAndGet(20));
+    threadPool.submit(() -> sum.addAndGet(10));
+    threadPool.submit(() -> sum.addAndGet(20));
+    threadPool.awaitTermination(1, TimeUnit.SECONDS);
 
-    assertEquals(10, stepA.get(1, TimeUnit.SECONDS).intValue());
-    assertEquals(30, stepB.get(1, TimeUnit.SECONDS).intValue());
+    assertEquals(30, sum.get());
   }
 
   private static class FakeCallable implements Callable<Integer> {
