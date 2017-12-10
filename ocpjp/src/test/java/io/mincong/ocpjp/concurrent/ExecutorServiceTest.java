@@ -85,15 +85,6 @@ public class ExecutorServiceTest {
     future.get(1, TimeUnit.SECONDS);
   }
 
-  @Test
-  public void submit_callableLambda() throws Exception {
-    threadPool.submit(() -> sum.addAndGet(10));
-    threadPool.submit(() -> sum.addAndGet(20));
-    threadPool.awaitTermination(1, TimeUnit.SECONDS);
-
-    assertEquals(30, sum.get());
-  }
-
   private static class FakeCallable implements Callable<Integer> {
 
     @Override
@@ -102,6 +93,25 @@ public class ExecutorServiceTest {
     }
   }
 
+  @Test
+  public void submit_callableVoid() throws Exception {
+    Callable<Void> task = () -> {
+      sum.set(10);
+      return null;
+    };
+    Future<Void> future = threadPool.submit(task);
+    future.get(1, TimeUnit.SECONDS);
+    assertEquals(10, sum.get());
+  }
+
+  @Test
+  public void submit_callableLambda() throws Exception {
+    threadPool.submit(() -> sum.addAndGet(10));
+    threadPool.submit(() -> sum.addAndGet(20));
+    threadPool.awaitTermination(1, TimeUnit.SECONDS);
+
+    assertEquals(30, sum.get());
+  }
   @Test
   public void invokeAll() throws Exception {
     List<Future<Integer>> futures = threadPool.invokeAll(tasks);
