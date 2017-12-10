@@ -15,7 +15,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -25,7 +24,6 @@ import java.io.Reader;
 import java.io.Serializable;
 import java.io.Writer;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
@@ -55,11 +53,12 @@ import org.junit.rules.TemporaryFolder;
  * to is a (regular) file.
  * <li>For a directory, {@link File#list()} returns an array of
  * subdirectories and files as string. You can use method
- * {@link File#list(FilenameFilter)} to filter the listing result.
+ * {@link File#list(java.io.FilenameFilter)} to filter the listing
+ * result.
  * <li>For a directory, {@link File#listFiles()} returns an array of
  * subdirectories and files as {@link File}. You can use method
- * {@link File#listFiles(FilenameFilter)} to filter the listing
- * result.
+ * {@link File#listFiles(java.io.FilenameFilter)} to filter the
+ * listing result.
  * <li>You can create a {@link File} instance that represents a
  * nonexistent file on your file system. And you can even invoke
  * methods like {@link File#isFile()} without getting an exception.
@@ -109,7 +108,7 @@ import org.junit.rules.TemporaryFolder;
  * whether to append to the existing file contents.
  * <li>Copying a file's content might not copy its attributes. To
  * copy a file, it's advisable to use methods such as {@link
- * Files#copy(Path, OutputStream)}.
+ * Files#copy(java.nio.file.Path, OutputStream)}.
  * <li>I/O operations that require reading and writing of a single
  * byte from and to a file are a <b>costly</b> affair. To optimize
  * the operation, you can use a byte array.

@@ -9,8 +9,6 @@ import java.util.Formatter;
 import java.util.IllegalFormatConversionException;
 import java.util.List;
 import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
