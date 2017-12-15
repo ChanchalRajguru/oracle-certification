@@ -59,8 +59,8 @@ public class TransactionTest extends JdbcTest {
     try (Statement s = connection.createStatement()) {
       int i1 = s.executeUpdate("INSERT INTO bank_tx VALUES (1, 'a', 'debit', 50.0, '2017-12-13')");
       int i2 = s.executeUpdate("INSERT INTO bank_tx VALUES (2, 'b', 'credit', 50.0, '2017-12-13')");
-      int u1 = s.executeUpdate("UPDATE bank_account SET balance = 450 WHERE account_id = 'c1'");
-      int u2 = s.executeUpdate("UPDATE bank_account SET balance = 550 WHERE account_id = 'c2'");
+      int u1 = s.executeUpdate("UPDATE bank_account SET balance = 450 WHERE account_id = 'a'");
+      int u2 = s.executeUpdate("UPDATE bank_account SET balance = 550 WHERE account_id = 'b'");
       /*
        * At the end of the execution of all the SQL statements, the
        * code `commit()` is called.
