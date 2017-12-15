@@ -1,6 +1,6 @@
 package io.mincong.ocpjp.jdbc;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -57,18 +57,10 @@ public class DriverManagerTest {
   public void createTable() throws Exception {
     StringBuilder sb = new StringBuilder();
     try (Statement s = connection.createStatement()) {
-      s.executeUpdate(
-          "CREATE TABLE book ("
-              + "  id INT PRIMARY KEY,"
-              + "  title VARCHAR(1000),"
-              + "  author CHAR(255),"
-              + "  publication_year INT,"
-              + "  unit_price REAL"
-              + ")"
-      );
+      s.executeUpdate("CREATE TABLE book ( id INT PRIMARY KEY )");
       try (ResultSet rs = s.executeQuery("SHOW TABLES")) {
         while (rs.next()) {
-          sb.append(getRow(rs));
+          sb.append(getRow(rs)).append('\n');
         }
       }
     }
