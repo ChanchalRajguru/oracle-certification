@@ -2,15 +2,12 @@ package io.mincong.ocpjp.jdbc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,15 +16,13 @@ import org.junit.Test;
  *
  * @author Mincong Huang
  */
-public class CrudOperationTest {
-
-  private static final String URL = "jdbc:h2:mem:test";
-
-  private Connection connection;
+public class CrudOperationTest extends JdbcTest {
 
   @Before
+  @Override
   public void setUp() throws Exception {
-    connection = DriverManager.getConnection(URL);
+    super.setUp();
+
     try (Statement s = connection.createStatement()) {
       /*
        * Exam Tip:
@@ -53,11 +48,6 @@ public class CrudOperationTest {
               + " VALUES (1, 'Book Name', 'Author', 2017, 10.0)"
       );
     }
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    connection.close();
   }
 
   @Test
