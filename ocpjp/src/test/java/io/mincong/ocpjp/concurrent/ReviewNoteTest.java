@@ -2,7 +2,6 @@ package io.mincong.ocpjp.concurrent;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
-import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentNavigableMap;
@@ -54,8 +53,8 @@ public class ReviewNoteTest {
     m.put(2, "two");
 
     // key
-    assertThat(new ArrayList<>(m.navigableKeySet())).containsExactly(1, 2, 3, 6);
-    assertThat(new ArrayList<>(m.descendingKeySet())).containsExactly(6, 3, 2, 1);
+    assertThat(m.navigableKeySet()).containsExactly(1, 2, 3, 6);
+    assertThat(m.descendingKeySet()).containsExactly(6, 3, 2, 1);
 
     assertThat(m.firstKey()).isEqualTo(1);
     assertThat(m.lastKey()).isEqualTo(6);
