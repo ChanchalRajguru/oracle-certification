@@ -2,7 +2,9 @@ package io.mincong.ocpjp.jdbc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Savepoint;
 import java.sql.Statement;
 import org.junit.Before;
 import org.junit.Test;
@@ -91,4 +93,48 @@ public class TransactionTest extends JdbcTest {
       connection.rollback();
     }
   }
+
+  @Test
+  public void savepoint() throws Exception {
+    /*
+     * A JDBC connection can have two automatic `commit` (auto-
+     * commit) modes:
+     * - true
+     * - false
+     *
+     * To work with a transaction, you must set the auto-commit mode
+     * to `false` or methods `rollback()` and `commit()` will throw a
+     * `SQLException`.
+     */
+    connection.setAutoCommit(false);
+    try (Statement s = connection.createStatement()) {
+      s.executeUpdate("INSERT INTO bank_tx VALUES (1, 'a', 'debit', 50.0, '2017-12-13')");
+      s.executeUpdate("UPDATE bank_account SET balance = 450 WHERE account_id = 'a'");
+      Savepoint savepointA = connection.setSavepoint("A");
+
+      s.executeUpdate("INSERT INTO bank_tx VALUES (2, 'b', 'credit', 50.0, '2017-12-13')");
+      s.executeUpdate("UPDATE bank_account SET balance = 550 WHERE account_id = 'b'");
+      connection.setSavepoint(); // unnamed savepoint
+
+      connection.rollback(savepointA);
+      connection.commit();
+    } catch (SQLException e) {
+      connection.rollback();
+    }
+
+    // Based on savepoint A, only client A has been updated.
+    try (Statement s = connection.createStatement()) {
+      try (ResultSet rs = s.executeQuery("SELECT * FROM bank_tx")) {
+        String str = getResults(rs);
+        assertThat(str).contains("1, a, debit, 50.0, 2017-12-13");
+        assertThat(str).doesNotContain("2, b, credit, 50.0, 2017-12-13");
+      }
+      try (ResultSet rs = s.executeQuery("SELECT * FROM bank_account")) {
+        String str = getResults(rs);
+        assertThat(str).contains("a, Client A, 450.0");
+        assertThat(str).contains("b, Client B, 500.0");
+      }
+    }
+  }
+
 }

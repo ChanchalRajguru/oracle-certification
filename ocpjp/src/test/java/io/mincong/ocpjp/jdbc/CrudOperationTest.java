@@ -4,10 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -155,20 +152,6 @@ public class CrudOperationTest extends JdbcTest {
       int deleted = s.executeUpdate("DELETE FROM book WHERE id > 100");
       assertThat(deleted).isEqualTo(0);
     }
-  }
-
-  private String getResults(ResultSet rs) throws SQLException {
-    int max = rs.getMetaData().getColumnCount();
-    StringBuilder sb = new StringBuilder();
-    while (rs.next()) {
-      List<String> fields = new ArrayList<>(max);
-      // Database index starts at 1.
-      for (int i = 1; i <= max; i++) {
-        fields.add(rs.getString(i));
-      }
-      sb.append(String.join(", ", fields)).append('\n');
-    }
-    return sb.toString();
   }
 
 }

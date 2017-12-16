@@ -2,6 +2,10 @@ package io.mincong.ocpjp.jdbc;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 
@@ -17,9 +21,9 @@ public abstract class JdbcTest {
    * jdbc:sub-protocol://&lt;host&gt;:&lt;port&gt;/&lt;database_name&gt;
    * </pre>
    */
-  protected static final String URL = "jdbc:h2:mem:test";
+  static final String URL = "jdbc:h2:mem:test";
 
-  protected Connection connection;
+  Connection connection;
 
   @Before
   public void setUp() throws Exception {
@@ -33,6 +37,20 @@ public abstract class JdbcTest {
   @After
   public void tearDown() throws Exception {
     connection.close();
+  }
+
+  String getResults(ResultSet rs) throws SQLException {
+    int max = rs.getMetaData().getColumnCount();
+    StringBuilder sb = new StringBuilder();
+    while (rs.next()) {
+      List<String> fields = new ArrayList<>(max);
+      // Database index starts at 1.
+      for (int i = 1; i <= max; i++) {
+        fields.add(rs.getString(i));
+      }
+      sb.append(String.join(", ", fields)).append('\n');
+    }
+    return sb.toString();
   }
 
 }
