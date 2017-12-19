@@ -1,11 +1,19 @@
 package io.mincong.ocpjp.stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Test;
@@ -126,6 +134,115 @@ public class CollectionTest {
   public void noneMatch() throws Exception {
     assertThat(Stream.of(-1, -2, 3).noneMatch(i -> i == 0)).isTrue();
     assertThat(Stream.of(-1, -2, 3).noneMatch(i -> i < 10)).isFalse();
+  }
+
+  @Test
+  public void count() throws Exception {
+    assertThat(Stream.of(1, 2, 3).count()).isEqualTo(3);
+  }
+
+  @Test
+  public void distinct() throws Exception {
+    assertThat(Stream.of(1, 2, 1).distinct().count()).isEqualTo(2);
+  }
+
+  @Test
+  public void sorted_naturalOrder() throws Exception {
+    List<Integer> numbers = Stream.of(1, 3, 2)
+        .sorted()
+        .collect(Collectors.toList());
+    assertThat(numbers).containsExactly(1, 2, 3);
+  }
+
+  @Test
+  public void sorted_specificOrder1() throws Exception {
+    List<Integer> numbers = Stream.of(1, 3, 2)
+        .sorted(Comparator.comparing(Integer::intValue).reversed())
+        .collect(Collectors.toList());
+    assertThat(numbers).containsExactly(3, 2, 1);
+  }
+
+  @Test
+  public void sorted_specificOrder2() throws Exception {
+    List<Book> numbers = books.stream()
+        .sorted(Comparator.comparing(Book::getName))
+        .collect(Collectors.toList());
+    assertThat(numbers).containsExactly(new Book("A"), new Book("B"));
+  }
+
+  @Test
+  public void limit() throws Exception {
+    List<Integer> numbers = Stream.of(1, 2, 3)
+        .limit(2)
+        .collect(Collectors.toList());
+    assertThat(numbers).containsExactly(1, 2);
+  }
+
+  @Test
+  public void skip() throws Exception {
+    List<Integer> numbers = Stream.of(-2, -1, 1, 2, 3)
+        .skip(2)
+        .collect(Collectors.toList());
+    assertThat(numbers).containsExactly(1, 2, 3);
+  }
+
+  @Test
+  public void reduce() throws Exception {
+    assertThat(Stream.of(1, 2, 3).reduce((x, y) -> x + y)).isPresent().hasValue(6);
+    assertThat(Stream.of(1, 2, 3).reduce(Math::max)).isPresent().hasValue(3);
+    assertThat(Stream.of(1, 2, 3).reduce(4, Math::max)).isEqualTo(4);
+  }
+
+  @Test
+  public void intStream_average() throws Exception {
+    assertThat(IntStream.range(0, 3).average()).isPresent().hasValue(1);
+    assertThat(IntStream.rangeClosed(0, 2).average()).isPresent().hasValue(1);
+  }
+
+  @Test
+  public void iterate() throws Exception {
+    List<Integer> numbers = Stream.iterate(0, n -> n + 10).limit(5).collect(Collectors.toList());
+    assertThat(numbers).containsExactly(0, 10, 20, 30, 40);
+  }
+
+  @Test
+  public void flatMap() throws Exception {
+    List<String> chars = Stream.of("Hello", "Java")
+        .map(s -> s.split(""))
+        .flatMap(Arrays::stream)
+        .distinct()
+        .sorted()
+        .collect(Collectors.toList());
+    assertThat(chars).containsExactly("H", "J", "a", "e", "l", "o", "v");
+  }
+
+  @Test
+  public void collector_set() throws Exception {
+    Set<Integer> numbers = Stream.of(1, 2, 2).collect(Collectors.toSet());
+    assertThat(numbers).containsExactly(1, 2);
+  }
+
+  @Test
+  public void collect_map() throws Exception {
+    Map<String, Integer> m = Stream.of(1, 2)
+        .collect(Collectors.toMap(String::valueOf, Function.identity()));
+    assertThat(m).containsOnly(entry("1", 1), entry("2", 2));
+  }
+
+  @Test
+  public void groupBy() throws Exception {
+    Map<Character, Set<String>> m = Stream.of("A1", "A2", "A1", "B1", "B2")
+        .collect(Collectors.groupingBy(s -> s.charAt(0), HashMap::new, Collectors.toSet()));
+    assertThat(m.get('A')).containsExactlyInAnyOrder("A1", "A2");
+    assertThat(m.get('B')).containsExactlyInAnyOrder("B1", "B2");
+  }
+
+  @Test
+  public void partitioningBy() throws Exception {
+    Map<Boolean, List<Integer>> isOdd = Stream.of(0, 1, 2, 3)
+        .collect(Collectors.partitioningBy(i -> i % 2 == 0));
+    assertThat(isOdd.get(true)).containsExactly(0, 2);
+    assertThat(isOdd.get(false)).containsExactly(1, 3);
   }
 
   private static class Book {
