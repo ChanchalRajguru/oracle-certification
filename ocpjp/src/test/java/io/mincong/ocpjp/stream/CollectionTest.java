@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -67,6 +68,20 @@ public class CollectionTest {
         .filter(b -> b.getName().startsWith("A"))
         .collect(Collectors.toList());
     assertThat(filtered).containsExactly(new Book("A"));
+  }
+
+  @Test
+  public void filter() throws Exception {
+    Map<String, Integer> m = new HashMap<>();
+    m.put("A1", 1);
+    m.put("A2", 2);
+    m.put("B1", 3);
+
+    Map<String, Integer> subMap = m.entrySet()
+        .stream()
+        .filter(e -> e.getKey().startsWith("A"))
+        .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+    assertThat(subMap).containsOnly(entry("A1", 1), entry("A2", 2));
   }
 
   /* Stream API related tests */
