@@ -53,4 +53,12 @@ public abstract class JdbcTest {
     return sb.toString();
   }
 
+  int getSize(ResultSet rs) throws SQLException {
+    int count = 0;
+    while (rs.next()) {
+      count++;
+    }
+    return count;
+  }
+
 }
