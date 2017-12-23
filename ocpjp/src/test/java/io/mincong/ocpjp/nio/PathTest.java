@@ -11,6 +11,10 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributeView;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.PosixFileAttributeView;
+import java.nio.file.attribute.PosixFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Arrays;
@@ -250,6 +254,59 @@ public class PathTest {
   @Test
   public void deleteIfExists_nonexistentFile() throws Exception {
     assertThat(Files.deleteIfExists(r.resolve("nonexistent"))).isFalse();
+  }
+
+  /* Files and directory attributes */
+
+  @Test
+  public void individualAttributes() throws Exception {
+    Path path = r.resolve("file");
+    Files.createFile(path);
+
+    assertThat(Files.size(path)).isZero();
+    assertThat(Files.isDirectory(path)).isFalse();
+    assertThat(Files.isHidden(path)).isFalse();
+    assertThat(Files.isSymbolicLink(path)).isFalse();
+    assertThat(Files.isSameFile(path, r)).isFalse();
+
+    assertThat(Files.isExecutable(path)).isFalse();
+    assertThat(Files.isReadable(path)).isTrue();
+    assertThat(Files.isWritable(path)).isTrue();
+  }
+
+  /**
+   * Querying the file system multiple times to access all file or
+   * directory attributes can affect your application's performance.
+   * To get around this, you can access a group of file attributes by
+   * calling <code>Files#getFileAttributeView</code> or
+   * <code>Files#readAttributes</code>.
+   */
+  @Test
+  @Ignore
+  public void posixFileAttributesView() throws Exception {
+    /*
+     * If a file system doesn't support an attribute view,
+     * `Files.getFileAttributeView()` returns `null`. If a file
+     * system doesn't support an attribute set,
+     * `File.readAttributes()` will throw a runtime exception.
+     */
+    PosixFileAttributeView view = Files.getFileAttributeView(r, PosixFileAttributeView.class);
+    PosixFileAttributes attributes = view.readAttributes();
+
+    assertThat(attributes.group().getName()).isEqualTo("staff");
+    assertThat(attributes.owner().getName()).isEqualTo("mincong");
+  }
+
+  @Test
+  public void basicFileAttributesView() throws Exception {
+    BasicFileAttributeView view = Files.getFileAttributeView(r, BasicFileAttributeView.class);
+    BasicFileAttributes attributes = view.readAttributes();
+
+    assertThat(attributes.isDirectory()).isTrue();
+    assertThat(attributes.isRegularFile()).isFalse();
+    assertThat(attributes.isSymbolicLink()).isFalse();
+    assertThat(attributes.size()).isPositive();
+    assertThat(attributes.isOther()).isFalse();
   }
 
 }
