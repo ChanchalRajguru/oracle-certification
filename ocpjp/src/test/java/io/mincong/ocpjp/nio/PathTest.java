@@ -3,10 +3,12 @@ package io.mincong.ocpjp.nio;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,7 +19,9 @@ import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -58,6 +62,87 @@ public class PathTest {
     System.out.println("getNameCount(): " + path.getNameCount());
     System.out.println("getParent():    " + path.getParent());
     System.out.println("subpath(0, 2):  " + path.subpath(0, 2));
+  }
+
+  @Test
+  public void toAbsolutePath_noFollowLinks() throws Exception {
+    Files.createFile(r.resolve("target"));
+    Files.createSymbolicLink(r.resolve("link"), r.resolve("target"));
+
+    Path p = r.resolve("link").toAbsolutePath();
+    assertThat(p.getFileName().toString()).isEqualTo("link");
+  }
+
+  @Test
+  public void toAbsolutePath_nonexistent() throws Exception {
+    Path p = r.resolve("nonexistent").toAbsolutePath(); // no exception raised
+    assertThat(p.getFileName().toString()).isEqualTo("nonexistent");
+  }
+
+  @Test(expected = NoSuchFileException.class)
+  public void toRealPath_nonexistent() throws Exception {
+    r.resolve("nonexistent").toRealPath();
+  }
+
+  @Test
+  public void toRealPath_followLinks() throws Exception {
+    Files.createFile(r.resolve("target"));
+    Files.createSymbolicLink(r.resolve("link"), r.resolve("target"));
+
+    Path target = r.resolve("link").toRealPath();
+    assertThat(target.getFileName().toString()).isEqualTo("target");
+  }
+
+  @Test
+  public void getRoot_relativePath() throws Exception {
+    assertThat(Paths.get("foo/bar").getRoot()).isNull();
+  }
+
+  @Test
+  public void getRoot_absolutePath() throws Exception {
+    assertThat(r.toAbsolutePath().getRoot()).isNotNull();
+  }
+
+  @Test
+  public void getParent_existingParent() throws Exception {
+    assertThat(d1.getParent()).isNotNull();
+  }
+
+  @Test
+  public void getParent_nonexistentParent() throws Exception {
+    assertThat(Paths.get("foo").getParent()).isNull();
+  }
+
+  @Test
+  public void getNameCount() throws Exception {
+    assertThat(Paths.get("/foo").getNameCount()).isEqualTo(1);
+    assertThat(Paths.get("/foo").getName(0).toString()).isEqualTo("foo");
+  }
+
+  @Test
+  public void toRealPath_noFollowLinks() throws Exception {
+    Files.createFile(r.resolve("target"));
+    Files.createSymbolicLink(r.resolve("link"), r.resolve("target"));
+
+    Path link = r.resolve("link").toRealPath(LinkOption.NOFOLLOW_LINKS);
+    assertThat(link.getFileName().toString()).isEqualTo("link");
+  }
+
+  @Test
+  public void iterable() throws Exception {
+    Path a = Paths.get("dirA/fileA");
+    Path b = Paths.get("dirB/fileB");
+    Path relative = a.relativize(b);
+
+    List<String> names = new ArrayList<>();
+    for (Path p : relative) {
+      names.add(p.toString());
+    }
+    assertThat(names).containsExactly("..", "..", "dirB", "fileB");
+    assertThat(relative.getName(0).getFileName().toString()).isEqualTo("..");
+    assertThat(relative.getName(1).getFileName().toString()).isEqualTo("..");
+    assertThat(relative.getName(2).getFileName().toString()).isEqualTo("dirB");
+    assertThat(relative.getName(3).getFileName().toString()).isEqualTo("fileB");
   }
 
   @Test
@@ -123,6 +208,11 @@ public class PathTest {
   public void relativize() throws Exception {
     Path relativeD1 = r.relativize(d1);
     assertThat(relativeD1.toString()).isEqualTo("dir1");
+  }
+
+  @Test(expected = IOException.class)
+  public void createDirectory_nonexistentParent() throws Exception {
+    Files.createDirectory(r.resolve("nonexistent/foo"));
   }
 
   @Test
