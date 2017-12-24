@@ -7,14 +7,25 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
+import java.util.function.DoubleConsumer;
+import java.util.function.DoublePredicate;
+import java.util.function.DoubleSupplier;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
 import java.util.function.IntPredicate;
+import java.util.function.IntSupplier;
+import java.util.function.IntToDoubleFunction;
+import java.util.function.IntToLongFunction;
 import java.util.function.IntUnaryOperator;
+import java.util.function.LongConsumer;
+import java.util.function.LongPredicate;
+import java.util.function.LongSupplier;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -78,6 +89,26 @@ public class FunctionTest {
     assertThat(values).containsExactly(1, 2, 3);
   }
 
+  @Test
+  public void longPredicate() throws Exception {
+    LongPredicate isOdd = i -> i % 2 == 0;
+    long count = numbers.stream()
+        .mapToLong(i -> i)
+        .filter(isOdd)
+        .count();
+    assertThat(count).isEqualTo(2);
+  }
+
+  @Test
+  public void doublePredicate() throws Exception {
+    DoublePredicate floorIsOne = d -> Math.floor(d) == 1D;
+    long count = numbers.stream()
+        .mapToDouble(i -> i * 1.5)
+        .filter(floorIsOne)
+        .count();
+    assertThat(count).isEqualTo(1);
+  }
+
   /* Consumers */
 
   @Test
@@ -97,6 +128,22 @@ public class FunctionTest {
   }
 
   @Test
+  public void longConsumer() throws Exception {
+    AtomicLong sum = new AtomicLong(0);
+    LongConsumer add = sum::getAndAdd;
+    numbers.stream().mapToLong(i -> i).forEach(add);
+    assertThat(sum.get()).isEqualTo(6);
+  }
+
+  @Test
+  public void doubleConsumer() throws Exception {
+    List<Double> values = new ArrayList<>();
+    DoubleConsumer add = values::add;
+    numbers.stream().mapToDouble(i -> i * 1.0).forEach(add);
+    assertThat(values).containsExactly(0.0, 1.0, 2.0, 3.0);
+  }
+
+  @Test
   public void biConsumer() throws Exception {
     List<Integer> values = new ArrayList<>();
     BiConsumer<Integer, Integer> insertMultiplication = (x, y) -> values.add(x * y);
@@ -107,13 +154,52 @@ public class FunctionTest {
   /* Functions */
 
   @Test
-  public void function1() throws Exception {
-    Function<Integer, Integer> doubleMe = i -> i * 2;
-    List<Integer> values = numbers.stream()
-        .map(doubleMe)
+  public void function() throws Exception {
+    List<String> entries = map.entrySet()
+        .stream()
+        .map(e -> "(" + e.getKey() + ", " + e.getValue() + ")")
         .collect(Collectors.toList());
-    assertThat(values).containsExactly(0, 2, 4, 6);
+    assertThat(entries).containsExactly("(1, 2)", "(2, 4)", "(3, 6)");
   }
+
+  @Test
+  public void intFunction() throws Exception {
+    IntFunction<String> toStr = String::valueOf;
+    List<String> values = numbers.stream()
+        .map(toStr::apply)
+        .collect(Collectors.toList());
+    assertThat(values).containsExactly("0", "1", "2", "3");
+  }
+
+  @Test
+  public void biFunction() throws Exception {
+    BiFunction<Integer, Integer, String> f = (x, y) -> x + ", " + y;
+    assertThat(f.apply(1, 2)).isEqualTo("1, 2");
+  }
+
+  @Test
+  public void intToDoubleFunction() throws Exception {
+    IntToDoubleFunction doubleMe = i -> i * 2.0;
+    List<Double> values = numbers.stream()
+        .mapToInt(Integer::intValue)
+        .mapToDouble(doubleMe)
+        .boxed()
+        .collect(Collectors.toList());
+    assertThat(values).containsExactly(0.0, 2.0, 4.0, 6.0);
+  }
+
+  @Test
+  public void intToLongFunction() throws Exception {
+    IntToLongFunction x10 = i -> i * 10;
+    List<Long> values = numbers.stream()
+        .mapToInt(Integer::intValue)
+        .mapToLong(x10)
+        .boxed()
+        .collect(Collectors.toList());
+    assertThat(values).containsExactly(0L, 10L, 20L, 30L);
+  }
+
+  /* Operators */
 
   @Test
   public void unaryOperator() throws Exception {
@@ -140,30 +226,6 @@ public class FunctionTest {
     assertThat(f.apply(doubleThenPlusOne)).containsExactly(1, 3, 5, 7);
   }
 
-  @Test
-  public void function2() throws Exception {
-    List<String> entries = map.entrySet()
-        .stream()
-        .map(e -> "(" + e.getKey() + ", " + e.getValue() + ")")
-        .collect(Collectors.toList());
-    assertThat(entries).containsExactly("(1, 2)", "(2, 4)", "(3, 6)");
-  }
-
-  @Test
-  public void intFunction() throws Exception {
-    IntFunction<String> toStr = String::valueOf;
-    List<String> values = numbers.stream()
-        .map(toStr::apply)
-        .collect(Collectors.toList());
-    assertThat(values).containsExactly("0", "1", "2", "3");
-  }
-
-  @Test
-  public void biFunction() throws Exception {
-    BiFunction<Integer, Integer, String> f = (x, y) -> x + ", " + y;
-    assertThat(f.apply(1, 2)).isEqualTo("1, 2");
-  }
-
   /* Suppliers */
 
   @Test
@@ -173,6 +235,30 @@ public class FunctionTest {
         .map(i -> i * 2)
         .collect(Collectors.toCollection(supplier));
     assertThat(values).containsExactly(0, 2, 4, 6);
+  }
+
+  @Test
+  public void intSupplier() throws Exception {
+    IntSupplier supplier = numbers::size;
+    assertThat(supplier.getAsInt()).isEqualTo(4);
+  }
+
+  @Test
+  public void doubleSupplier() throws Exception {
+    DoubleSupplier supplier = () -> 10.0;
+    assertThat(supplier.getAsDouble()).isEqualTo(10.0);
+  }
+
+  @Test
+  public void booleanSupplier() throws Exception {
+    BooleanSupplier supplier = () -> false;
+    assertThat(supplier.getAsBoolean()).isFalse();
+  }
+
+  @Test
+  public void longSupplier() throws Exception {
+    LongSupplier supplier = () -> 1L;
+    assertThat(supplier.getAsLong()).isEqualTo(1L);
   }
 
 }
