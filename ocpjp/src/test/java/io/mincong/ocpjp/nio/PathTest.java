@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -62,6 +63,29 @@ public class PathTest {
     System.out.println("getNameCount(): " + path.getNameCount());
     System.out.println("getParent():    " + path.getParent());
     System.out.println("subpath(0, 2):  " + path.subpath(0, 2));
+  }
+
+  @Test
+  public void lines() throws Exception {
+    Path p = r.resolve("file");
+    Files.write(p, Arrays.asList("Line 1", "Line 2", "Line 3"));
+    List<String> words = Files.lines(p)
+        .map(line -> line.split(" "))
+        .flatMap(Arrays::stream)
+        .distinct()
+        .sorted()
+        .collect(Collectors.toList());
+    assertThat(words).containsExactly("1", "2", "3", "Line");
+  }
+
+  @Test
+  public void list() throws Exception {
+    Path p = r.resolve("file");
+    Files.write(p, Arrays.asList("Line 1", "Line 2", "Line 3"));
+    List<Path> paths = Files.list(r)
+        .filter(path -> path.getFileName().toString().startsWith("dir2"))
+        .collect(Collectors.toList());
+    assertThat(paths).containsExactly(d2);
   }
 
   @Test
