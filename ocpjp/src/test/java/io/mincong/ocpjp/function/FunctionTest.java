@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
@@ -259,6 +260,59 @@ public class FunctionTest {
   public void longSupplier() throws Exception {
     LongSupplier supplier = () -> 1L;
     assertThat(supplier.getAsLong()).isEqualTo(1L);
+  }
+
+  /*
+   * Method references
+   *
+   * There are three main kinds of method references:
+   *
+   * 1. A method reference to a static method (for example, the
+   *    method `parseInt` of `Integer`, written `Integer::parseInt`)
+   * 2. A method reference to an instance method of an arbitrary type
+   *    (for example, the method `length` of a `String`, written
+   *    `String::length`)
+   * 3. A method reference to an instance method of an existing
+   *    object (for example, the pose you have a local variable
+   *    `expensiveTransaction` that holds an object of type
+   *    `Transaction`, which supports an instance method `getValue`;
+   *    you can write `expensiveTransaction::getValue`)
+   */
+
+  @Test
+  public void methodReference_staticMethod() throws Exception {
+    List<String> values = numbers.stream()
+        .map(String::valueOf)
+        .collect(Collectors.toList());
+    assertThat(values).containsExactly("0", "1", "2", "3");
+  }
+
+  @Test
+  public void methodReference_instanceMethodOfArbitraryType() throws Exception {
+    /*
+     * BiPredicate<List<Integer>, Integer> contains =
+     *     (list, element) -> list.contains(element);
+     *
+     * This lambda uses its first argument to call the method
+     * `contains` on it. Because the first argument is of type
+     * `List`, the expression can be simplified as the following.
+     * This is because the target type describes a function
+     * descriptor
+     *
+     *     (List<String>, String) -> boolean
+     *
+     * and `List::contains` can be unpacked to that function
+     * descriptor.
+     */
+    BiPredicate<List<Integer>, Integer> contains = List::contains;
+    assertThat(contains.test(numbers, 2)).isTrue();
+  }
+
+  @Test
+  public void methodReference_instanceMethodOfExistingObject() throws Exception {
+    StringBuilder builder = new StringBuilder();
+    numbers.forEach(builder::append);
+    assertThat(builder.toString()).isEqualTo("0123");
   }
 
 }
