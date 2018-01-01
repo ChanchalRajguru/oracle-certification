@@ -2,6 +2,7 @@ package io.mincong.ocpjp.date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -49,6 +50,7 @@ public class Java8DateTest {
     assertThat(d.get(ChronoField.DAY_OF_WEEK)).isEqualTo(DayOfWeek.TUESDAY.getValue());
     try {
       d.get(ChronoField.HOUR_OF_DAY);
+      fail();
     } catch (UnsupportedTemporalTypeException e) {
       // ok
     }

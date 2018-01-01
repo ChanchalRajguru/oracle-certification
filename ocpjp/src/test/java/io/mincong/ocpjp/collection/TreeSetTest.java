@@ -1,6 +1,7 @@
 package io.mincong.ocpjp.collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 import java.util.Comparator;
 import java.util.TreeSet;
@@ -17,6 +18,7 @@ public class TreeSetTest {
     TreeSet<Person> treeSet = new TreeSet<>();
     try {
       treeSet.add(new Person("A"));
+      fail();
     } catch (ClassCastException e) {
       assertThat(e).hasMessageContaining("Person cannot be cast to java.lang.Comparable");
     }

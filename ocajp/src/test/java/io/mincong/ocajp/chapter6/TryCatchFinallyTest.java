@@ -1,6 +1,7 @@
 package io.mincong.ocajp.chapter6;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -16,6 +17,7 @@ public class TryCatchFinallyTest {
   public void testTryCatchCombination() {
     try {
       Integer.parseInt("A");
+      fail();
     } catch (NumberFormatException e) {
       assertEquals("For input string: \"A\"", e.getMessage());
     }
