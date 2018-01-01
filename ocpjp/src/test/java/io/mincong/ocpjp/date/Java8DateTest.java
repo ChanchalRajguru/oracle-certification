@@ -10,8 +10,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
+import java.time.OffsetDateTime;
 import java.time.Period;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -170,6 +172,47 @@ public class Java8DateTest {
         .appendText(ChronoField.YEAR)
         .toFormatter(Locale.FRANCE);
     assertThat(fmt.format(d)).isEqualTo("02 janvier 2018");
+  }
+
+  /**
+   * 2018-01-01T00:00:00+01:00[Europe/Paris]
+   * <pre>
+   * +-----------+-----------+--------+
+   * | LocalDate | LocalTime | ZoneId |
+   * +-----------+-----------+--------+
+   * |     LocalDateTime     |
+   * +-----------+-----------+--------+
+   * |         ZonedDateTime          |
+   * +--------------------------------+
+   * </pre>
+   */
+  @Test
+  public void timezone_fromLocalDateTime() throws Exception {
+    LocalDateTime localDateTime = LocalDateTime.of(2018, 1, 1, 0, 0, 0);
+    ZonedDateTime parisDateTime = localDateTime.atZone(ZoneId.of("Europe/Paris"));
+    assertThat(parisDateTime.format(DateTimeFormatter.ISO_DATE_TIME))
+        .isEqualTo("2018-01-01T00:00:00+01:00[Europe/Paris]");
+  }
+
+  /**
+   * Be ware that a {@code ZoneOffset} defined in this way doesn't
+   * have any Daylight Saving Time management, and for this reason it
+   * isn't suggested in the majority of cases. Because a {@code
+   * ZoneOffset} is also a {@code ZoneId}, you can use it as other
+   * zone ID.
+   */
+  @Test
+  public void timezone_offset() throws Exception {
+    LocalDateTime localDateTime = LocalDateTime.of(2018, 1, 1, 0, 0, 0);
+    ZoneOffset newYorkOffset = ZoneOffset.of("-05:00");
+
+    OffsetDateTime t1 = localDateTime.atOffset(newYorkOffset);
+    assertThat(t1.format(DateTimeFormatter.ISO_DATE_TIME))
+        .isEqualTo("2018-01-01T00:00:00-05:00");
+
+    OffsetDateTime t2 = OffsetDateTime.of(localDateTime,newYorkOffset);
+    assertThat(t2.format(DateTimeFormatter.ISO_DATE_TIME))
+        .isEqualTo("2018-01-01T00:00:00-05:00");
   }
 
 }
