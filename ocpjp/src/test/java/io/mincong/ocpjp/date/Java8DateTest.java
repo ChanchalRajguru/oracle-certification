@@ -14,6 +14,7 @@ import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.UnsupportedTemporalTypeException;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -54,6 +55,24 @@ public class Java8DateTest {
     } catch (UnsupportedTemporalTypeException e) {
       // ok
     }
+  }
+
+  @Test
+  public void localDate_manipulateValues() throws Exception {
+    LocalDate d = LocalDate.of(2018, 1, 2);
+    assertThat(d.withYear(2017)).isEqualTo(LocalDate.of(2017, 1, 2));
+    assertThat(d.withMonth(2)).isEqualTo(LocalDate.of(2018, 2, 2));
+    assertThat(d.withDayOfMonth(3)).isEqualTo(LocalDate.of(2018, 1, 3));
+    assertThat(d.withDayOfYear(4)).isEqualTo(LocalDate.of(2018, 1, 4));
+  }
+
+  @Test
+  public void localDate_temporalAdjusters() throws Exception {
+    LocalDate d = LocalDate.of(2018, 1, 2);
+    LocalDate f = d.with(TemporalAdjusters.nextOrSame(DayOfWeek.FRIDAY));
+    LocalDate l = d.with(TemporalAdjusters.lastDayOfMonth());
+    assertThat(f).isEqualTo(LocalDate.of(2018, 1, 5));
+    assertThat(l).isEqualTo(LocalDate.of(2018, 1, 31));
   }
 
   @Test
