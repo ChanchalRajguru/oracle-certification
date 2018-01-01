@@ -13,9 +13,12 @@ import java.time.Month;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.UnsupportedTemporalTypeException;
+import java.util.Locale;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import org.junit.Test;
@@ -133,6 +136,40 @@ public class Java8DateTest {
     LocalDate d1 = LocalDate.of(2018, 1, 1);
     LocalDate d2 = LocalDate.of(2018, 1, 2);
     assertThat(Period.between(d1, d2)).isEqualTo(Period.ofDays(1));
+  }
+
+  @Test
+  public void dateTimeFormatter_builtin() throws Exception {
+    LocalDate d = LocalDate.of(2018, 1, 2);
+    assertThat(DateTimeFormatter.BASIC_ISO_DATE.format(d)).isEqualTo("20180102");
+    assertThat(DateTimeFormatter.ISO_LOCAL_DATE.format(d)).isEqualTo("2018-01-02");
+    assertThat(d.format(DateTimeFormatter.ISO_LOCAL_DATE)).isEqualTo("2018-01-02");
+  }
+
+  @Test
+  public void dateTimeFormatter_ofPattern() throws Exception {
+    LocalDate d = LocalDate.of(2018, 1, 2);
+    assertThat(DateTimeFormatter.ofPattern("yyyy-MM-dd").format(d)).isEqualTo("2018-01-02");
+  }
+
+  @Test
+  public void dateTimeFormatter_localized() throws Exception {
+    LocalDate d = LocalDate.of(2018, 1, 2);
+    DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.FRANCE);
+    assertThat(fmt.format(d)).isEqualTo("02 janvier 2018");
+  }
+
+  @Test
+  public void dateTimeFormatter_builder() throws Exception {
+    LocalDate d = LocalDate.of(2018, 1, 2);
+    DateTimeFormatter fmt = new DateTimeFormatterBuilder()
+        .appendValue(ChronoField.DAY_OF_MONTH, 2)
+        .appendLiteral(" ")
+        .appendText(ChronoField.MONTH_OF_YEAR)
+        .appendLiteral(" ")
+        .appendText(ChronoField.YEAR)
+        .toFormatter(Locale.FRANCE);
+    assertThat(fmt.format(d)).isEqualTo("02 janvier 2018");
   }
 
 }
