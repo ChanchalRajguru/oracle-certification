@@ -1,14 +1,20 @@
 package io.mincong.ocpjp.date;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
+import java.time.Period;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.UnsupportedTemporalTypeException;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import org.junit.Test;
 
@@ -76,8 +82,36 @@ public class Java8DateTest {
     LocalDateTime dt3 = d.atTime(LocalTime.of(13, 38, 0));
 
     LocalDateTime expected = LocalDateTime.of(2018, 1, 2, 13, 38, 0);
-    Stream.of(dt1, dt2, dt3)
-        .forEach(dt -> assertThat(dt).isEqualTo(expected));
+    Stream.of(dt1, dt2, dt3).forEach(dt -> assertEquals(expected, dt));
+  }
+
+  @Test
+  public void duration_betweenTwoLocalDateTimes() throws Exception {
+    LocalDateTime d1 = LocalDateTime.of(2018, 1, 1, 0, 0, 0);
+    LocalDateTime d2 = LocalDateTime.of(2018, 1, 1, 0, 12, 0);
+    assertThat(Duration.between(d1, d2)).isEqualTo(Duration.ofMinutes(12));
+  }
+
+  @Test
+  public void period_againstDuration() throws Exception {
+    ZonedDateTime d = ZonedDateTime.of(2017, 10, 29, 0, 0, 0, 0, ZoneId.of("Europe/Paris"));
+    Function<String, ZonedDateTime> parse = ZonedDateTime::parse;
+    /*
+     * Durations and periods differ in their treatment of daylight
+     * savings time when added to `ZonedDateTime`. A `Duration` will
+     * add an exact number of seconds, thus a duration of one day is
+     * always exactly 24 hours. By contrast, a `Period` will add a
+     * conceptual day, trying to maintain the local time.
+     */
+    assertThat(d.plus(Period.ofDays(1))).isEqualTo(parse.apply("2017-10-30T00:00:00+01:00"));
+    assertThat(d.plus(Duration.ofDays(1))).isEqualTo(parse.apply("2017-10-29T23:00:00+01:00"));
+  }
+
+  @Test
+  public void period_betweenTwoLocalDates() throws Exception {
+    LocalDate d1 = LocalDate.of(2018, 1, 1);
+    LocalDate d2 = LocalDate.of(2018, 1, 2);
+    assertThat(Period.between(d1, d2)).isEqualTo(Period.ofDays(1));
   }
 
 }
