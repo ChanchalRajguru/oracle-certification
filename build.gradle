@@ -1,0 +1,27 @@
+allprojects {
+    apply plugin: 'java'
+
+    repositories {
+        mavenCentral()
+    }
+
+    test {
+        testLogging {
+            events 'passed', 'skipped', 'failed'
+        }
+    }
+}
+
+project(':ocajp') {
+    dependencies {
+        testCompile 'junit:junit:4.12'
+    }
+}
+
+project(':ocpjp') {
+    dependencies {
+        testCompile 'junit:junit:4.12'
+        testCompile 'org.assertj:assertj-core:3.8.0'
+        testCompile 'com.h2database:h2:1.4.195'
+    }
+}
